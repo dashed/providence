@@ -8,11 +8,12 @@
 $ npm install --save providence
 ```
 
-## Extensions
+## Extensions 
 
 `Providence` is intended to be extended to fit to your needs.
 
-- [Prolefeed and minitrue](https://github.com/Dashed/minitrue) observable cursors that read and write to a single source of truth.
+- [Prolefeed](https://github.com/Dashed/prolefeed) observable cursors
+- [minitrue](https://github.com/Dashed/minitrue) Prolefeed factory that read/write to a single source of truth
 
 ### API
 
