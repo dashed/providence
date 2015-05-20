@@ -1,7 +1,7 @@
 {
   "name": "providence",
   "version": "0.1.1",
-  "description": "Abstract Om-style cursors that may be adapted to data structures of any type",
+  "description": "Reference a sub-structure of any data structure",
   "main": "modules/index.js",
   "scripts": {
     "test": "mocha --compilers js:babel/register",
