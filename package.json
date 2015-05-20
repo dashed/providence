@@ -1,0 +1,35 @@
+{
+  "name": "providence",
+  "version": "0.0.0",
+  "description": "Abstract Om-style cursors that may be adapted to data structures of any type",
+  "main": "modules/index.js",
+  "scripts": {
+    "test": "mocha --compilers js:babel/register",
+    "build": "./scripts/build.sh",
+    "prepublish": "npm run build"
+  },
+  "author": {
+    "name": "Alberto Leal",
+    "email": "mailforalberto@gmail.com",
+    "url": "github.com/Dashed"
+  },
+  "repository": "dashed/providence",
+  "license": "MIT",
+  "files": [
+    "modules"
+  ],
+  "peerDependencies": {
+    "immutable": "3.x"
+  },
+  "devDependencies": {
+    "babel": "^5.4.4",
+    "chai": "^2.3.0",
+    "mocha": "^2.2.5"
+  },
+  "dependencies": {
+    "lodash.get": "^3.7.0",
+    "lodash.has": "^3.2.0",
+    "lodash.isplainobject": "^3.1.0",
+    "lodash.set": "^3.7.2"
+  }
+}
