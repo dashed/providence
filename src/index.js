@@ -89,7 +89,7 @@ Providence.prototype.constructor = Providence;
 Providence.prototype.__utils = utils;
 
 /**
- * Returns string representation of this.deref().
+ * Returns string representation of `this.deref()`.
  *
  * @return {String}
  */
@@ -134,7 +134,7 @@ Providence.prototype.deref = function(notSetValue) {
 }
 
 /**
- * True if a keypath exists within the root data.
+ * Return true if a keypath exists within the unboxed root data.
  *
  * @return {Bool}
  */
@@ -142,6 +142,11 @@ Providence.prototype.exists = function() {
     return(this.deref(NOT_SET) !== NOT_SET);
 }
 
+/**
+ * Returns the array representation of the keypath.
+ *
+ * @type {Array}
+ */
 Providence.prototype.keypath =
 Providence.prototype.keyPath = function() {
     return this._options.getIn(KEYPATH_PATH);
@@ -164,7 +169,6 @@ Providence.prototype.options = function() {
  * @param  {Immutable Map | Object} newOptions
  * @return {Providence}
  */
-// TODO: might be better to consider instance.constructor. bikeshed?
 Providence.prototype.new = function(newOptions) {
     return new (this.constructor)(newOptions);
 }
