@@ -57,7 +57,7 @@ module.exports = Providence;
  * Create a Providence cursor given options.
  * Options may either be plain object or an Immutable Map.
  *
- * @param {Object | Immutable Map} options [description]
+ * @param {Object | Immutable Map} options Defines the character of the providence cursor.
  */
 function Providence(options = NOT_SET, skipDataCheck = false, skipProcessOptions = false) {
 
@@ -88,18 +88,24 @@ function Providence(options = NOT_SET, skipDataCheck = false, skipProcessOptions
 Providence.prototype.constructor = Providence;
 Providence.prototype.__utils = utils;
 
-// TODO: add test case
+/**
+ * Returns string representation of this.deref().
+ *
+ * @return {String}
+ */
 Providence.prototype.toString = function() {
     return String(this.deref());
 }
 
 /**
  * Dereference by unboxing the root data and getting the value at keypath.
+ * If keypath happens to not exist, notSetValue is, instead, returned.
+ * If notSetValue is not provided, it becomes value: void 0.
  *
- * @param  {[type]} notSetValue [description]
- * @return {[type]}             [description]
+ * @param  {any} notSetValue
+ * @return {any}             The sub-structure value at keypath relative to
+ *                           root data.
  */
-// TODO: add test case for valueOf
 Providence.prototype.valueOf =
 Providence.prototype.deref = function(notSetValue) {
 
@@ -127,6 +133,11 @@ Providence.prototype.deref = function(notSetValue) {
     return resolvedValue === NOT_SET ? notSetValue : resolvedValue;
 }
 
+/**
+ * True if a keypath exists within the root data.
+ *
+ * @return {Bool}
+ */
 Providence.prototype.exists = function() {
     return(this.deref(NOT_SET) !== NOT_SET);
 }
@@ -138,9 +149,10 @@ Providence.prototype.keyPath = function() {
 
 /**
  * Returns providence cursor's options. It is safe to modify this object since
- * it is an Immutable Map object.
+ * it is an Immutable Map object; and any changes will not reflect back to the
+ * originating cursor, unless it is used as the new options.
  *
- * @return {Immutable Map}            Returns
+ * @return {Immutable Map}
  */
 Providence.prototype.options = function() {
     return this._options;
@@ -149,10 +161,9 @@ Providence.prototype.options = function() {
 /**
  * Create a new Providence object with options via this instance.
  *
- * @param  {[type]} newOptions [description]
- * @return {[type]}            [description]
+ * @param  {Immutable Map | Object} newOptions
+ * @return {Providence}
  */
-// TODO: consider a better name?
 // TODO: might be better to consider instance.constructor. bikeshed?
 Providence.prototype.new = function(newOptions) {
     return new (this.constructor)(newOptions);
@@ -161,8 +172,13 @@ Providence.prototype.new = function(newOptions) {
 /**
  * When given no arguments, return itself.
  *
- * @param  {[type]} keyValue [description]
- * @return {[type]}            [description]
+ * By default, this is the same behaviour as cursor() method for immutable-js
+ * cursors:
+ * - Returns a sub-cursor following the path keyValue starting from this cursor.
+ * - If keyValue is not an array, an array containing keyValue is instead used.
+ *
+ * @param  {any | array } keyValue
+ * @return {Providence}
  */
 Providence.prototype.cursor = function(keyValue) {
 
@@ -190,10 +206,30 @@ Providence.prototype.cursor = function(keyValue) {
 
 
 /**
- * Update state at keypath.
+ * Update value in the unboxed root data at keypath using the updater function.
+ * If the keypath exists, updater is called using:
+ * - the value at keypath
+ * - unboxed root data
+ * - boxed root data
  *
- * @param  {Function} updater [description]
- * @return {Providence}         [description]
+ * If keypath doesn't exist, notSetValue is used as the initial value.
+ * If notSetValue is not defined, it has value void 0.
+ *
+ * If updater returns the same value the value at keypath (or notSetValue),
+ * then no changes has truly occured, and the current cursor is instead returned.
+ *
+ * Otherwise, the new value is replaced at keypath of the unboxed root data,
+ * and a new providence cursor is returned with the new boxed root data.
+ * In addition, any defined functions at onUpdate and/or _onUpdate within options
+ * will be called with the following:
+ * - options
+ * - cursor keypath
+ * - new unboxed root data with the new value
+ * - previous unboxed root data
+ *
+ * @param  {any} notSetValue
+ * @param  {Function} updater
+ * @return {Providence}
  */
 Providence.prototype.update = function(notSetValue, updater) {
 
@@ -242,6 +278,24 @@ Providence.prototype.update = function(notSetValue, updater) {
     return new (this.constructor)(newOptions, true, true);
 }
 
+/**
+ * Delete value at keypath.
+ *
+ * If the new unboxed root data is the same as the previous, original unboxed root data,
+ * then the current cursor is returned.
+ *
+ * Otherwise, any defined functions at onUpdate and/or _onUpdate within options
+ * will be called with the following:
+ * - options
+ * - cursor keypath
+ * - new unboxed root data with the new value
+ * - previous unboxed root data
+ *
+ * In addition, the new providence cursor containing the new unboxed root data
+ * will be returned.
+ *
+ * @type {Providence}
+ */
 Providence.prototype.remove =
 Providence.prototype.delete = function() {
 
