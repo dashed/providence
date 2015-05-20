@@ -1,6 +1,6 @@
 {
   "name": "providence",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Abstract Om-style cursors that may be adapted to data structures of any type",
   "main": "modules/index.js",
   "scripts": {
