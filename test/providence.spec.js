@@ -271,6 +271,10 @@ describe('Providence', function() {
             };
         });
 
+        it('#deref and #valueOf are aliases of each other', function() {
+            expect(Providence.prototype.deref).to.equal(Providence.prototype.valueOf);
+        });
+
         it('should be able to deref unboxed root data', function() {
 
             defaultOptions.keyPath = [];
