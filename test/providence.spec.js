@@ -383,6 +383,66 @@ describe('Providence', function() {
         });
     });
 
+    describe('#firstValue', function() {
+        // useful if root data is single source of truth
+        let DATA, defaultOptions;
+
+        beforeEach(function(){
+
+            DATA = {
+                map: Immutable.fromJS({
+                    foo: {
+                        bar: 'baz'
+                    }
+                })
+            };
+
+            defaultOptions = {
+                root: {
+                    data: DATA,
+                    unbox: function(m) {
+                        return m.map;
+                    },
+                    box: function(newRoot, m) {
+                        m.map = newRoot;
+                        return m;
+                    }
+                },
+                keyPath: ['foo', 'bar']
+            };
+        });
+
+        it('should return value before deref', function() {
+            const NOT_SET = {};
+            const cursor = Providence(defaultOptions);
+            expect(cursor.firstValue()).to.equal('baz');
+        });
+
+        it('should return value after deref', function() {
+            const NOT_SET = {};
+            const cursor = Providence(defaultOptions);
+            cursor.deref();
+            expect(cursor.firstValue()).to.equal('baz');
+        });
+
+        it('should return new value after update', function() {
+            const NOT_SET = {};
+            const cursor = Providence(defaultOptions);
+            cursor.update(_ => 'qux');
+            expect(cursor.firstValue()).to.equal('qux');
+            expect(cursor.deref()).to.equal('qux');
+        });
+
+        it('should return original value before update', function() {
+            const NOT_SET = {};
+            const cursor = Providence(defaultOptions);
+            expect(cursor.firstValue()).to.equal('baz');
+            cursor.update(_ => 'qux');
+            expect(cursor.firstValue()).to.equal('baz');
+            expect(cursor.deref()).to.equal('qux');
+        });
+    });
+
     describe('#exists', function() {
 
         let DATA, defaultOptions;

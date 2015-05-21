@@ -80,6 +80,8 @@ function Providence(options = NOT_SET, skipDataCheck = false, skipProcessOptions
     this._refUnboxedRootData = NOT_SET;
     this._cachedValue = NOT_SET;
 
+    this._firstValue = NOT_SET;
+
     if(!skipDataCheck && this._options.getIn(DATA_PATH, NOT_SET) === NOT_SET) {
         throw new Error("value at path ['root', 'data'] is required!")
     }
@@ -130,11 +132,19 @@ Providence.prototype.deref = function(notSetValue) {
     this._refUnboxedRootData = unboxed;
     this._cachedValue = resolvedValue;
 
+    if(this._firstValue === NOT_SET) {
+        this._firstValue = resolvedValue;
+    }
+
     return resolvedValue === NOT_SET ? notSetValue : resolvedValue;
 }
 
 Providence.prototype.cachedValue = function(notSetValue) {
     return this._cachedValue === NOT_SET ? notSetValue : this._cachedValue;
+}
+
+Providence.prototype.firstValue = function() {
+    return this._firstValue === NOT_SET ? this.deref() : this._firstValue;
 }
 
 /**
