@@ -112,7 +112,7 @@ Providence.prototype.deref = function(notSetValue) {
     const options = this._options;
 
     // unbox root data
-    const { rootData, unboxed } = unboxRootData(options);
+    const { rootData, unboxed } = this.unboxRootData();
 
     // check if value was cached
     if(this._refUnboxedRootData === unboxed) {
@@ -245,7 +245,7 @@ Providence.prototype.update = function(notSetValue, updater) {
     const options = this._options;
 
     // unbox root data
-    const { rootData, unboxed } = unboxRootData(options);
+    const { rootData, unboxed } = this.unboxRootData();
 
     // fetch state at keypath
     const fetchGetIn = options.getIn(GETIN_PATH);
@@ -306,7 +306,7 @@ Providence.prototype.delete = function() {
     const options = this._options;
 
     // unbox root data
-    const { rootData, unboxed } = unboxRootData(options);
+    const { rootData, unboxed } = this.unboxRootData();
 
     const fetchDeleteIn = options.getIn(DELETEIN_PATH);
     const deleteIn = fetchDeleteIn(unboxed);
@@ -329,6 +329,16 @@ Providence.prototype.delete = function() {
     return new (this.constructor)(newOptions, true, true);
 }
 
+Providence.prototype.unboxRootData = function() {
+    const options = this._options;
+
+    const unboxer = options.getIn(UNBOXER_PATH);
+    const rootData = options.getIn(DATA_PATH);
+    return {
+        rootData: rootData,
+        unboxed: unboxer(rootData)
+    };
+}
 
 /* helpers */
 
@@ -427,15 +437,6 @@ function setIfNotSet(_fetchHasIn, _fetchSetIn, options, path, value) {
     }
 
     return options;
-}
-
-function unboxRootData(options) {
-    const unboxer = options.getIn(UNBOXER_PATH);
-    const rootData = options.getIn(DATA_PATH);
-    return {
-        rootData: rootData,
-        unboxed: unboxer(rootData)
-    };
 }
 
 function callOnUpdate(options, keyPath, newRoot, oldRoot) {
