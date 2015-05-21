@@ -349,6 +349,40 @@ describe('Providence', function() {
         });
     });
 
+    describe('#cachedValue', function() {
+
+        let DATA, defaultOptions;
+
+        beforeEach(function(){
+
+            DATA = Immutable.fromJS({
+                foo: {
+                    bar: 'baz'
+                }
+            });
+
+            defaultOptions = {
+                root: {
+                    data: DATA
+                }
+            };
+        });
+
+        it('should return notSetValue if not cached', function() {
+            const NOT_SET = {};
+            const cursor = Providence(defaultOptions);
+            expect(cursor.cachedValue(NOT_SET)).to.equal(NOT_SET);
+        });
+
+        it('should return cachedValue if cached', function() {
+            defaultOptions.keyPath = ['foo', 'bar'];
+            const cursor = Providence(defaultOptions);
+            expect(cursor.deref()).to.equal('baz');
+            expect(cursor.cachedValue(null)).to.equal('baz');
+            expect(cursor.cachedValue()).to.equal(cursor._cachedValue);
+        });
+    });
+
     describe('#exists', function() {
 
         let DATA, defaultOptions;

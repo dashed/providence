@@ -133,6 +133,10 @@ Providence.prototype.deref = function(notSetValue) {
     return resolvedValue === NOT_SET ? notSetValue : resolvedValue;
 }
 
+Providence.prototype.cachedValue = function(notSetValue) {
+    return this._cachedValue === NOT_SET ? notSetValue : this._cachedValue;
+}
+
 /**
  * Return true if a keypath exists within the unboxed root data.
  *
