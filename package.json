@@ -1,6 +1,6 @@
 {
   "name": "providence",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Reference a sub-structure of any data structure",
   "main": "modules/index.js",
   "scripts": {
