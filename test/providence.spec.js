@@ -419,7 +419,7 @@ describe('Providence', function() {
             const path = cursor.path();
 
             expect(path).to.be.instanceof(Array);
-            expect(path).to.equal(_PATH);
+            expect(path).to.eql(_PATH);
         });
     });
 

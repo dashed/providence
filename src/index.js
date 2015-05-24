@@ -152,7 +152,7 @@ Providence.prototype.exists = function() {
  * @type {Array}
  */
 Providence.prototype.path = function() {
-    return this._options.getIn(PATH_PATH);
+    return this._options.getIn(PATH_PATH).slice();
 }
 
 /**
@@ -445,12 +445,12 @@ function setIfNotSet(_fetchHasIn, _fetchSetIn, options, path, value) {
 function callOnUpdate(options, path, newRoot, oldRoot) {
     const _onUpdate = options.getIn(_ONUPDATE_PATH, NOT_SET);
     if(_onUpdate !== NOT_SET) {
-        _onUpdate.call(null, options, path, newRoot, oldRoot);
+        _onUpdate.call(null, options, path.slice(), newRoot, oldRoot);
     }
 
     const onUpdate = options.getIn(ONUPDATE_PATH, NOT_SET);
     if(onUpdate !== NOT_SET) {
-        onUpdate.call(null, options, path, newRoot, oldRoot);
+        onUpdate.call(null, options, path.slice(), newRoot, oldRoot);
     }
 }
 
