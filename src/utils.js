@@ -6,18 +6,18 @@ const Immutable = require('immutable');
 const { Iterable } = Immutable;
 
 module.exports = {
-    valToKeyPath,
-    newKeyPath,
+    valToPath,
+    newPath,
     listToKeyPath
 };
 
-function valToKeyPath(val) {
+function valToPath(val) {
     return Array.isArray(val) ? val :
         Iterable.isIterable(val) ? val.toArray() :
         [val];
 }
 
-function newKeyPath(head, tail) {
+function newPath(head, tail) {
     return head.concat(listToKeyPath(tail));
 }
 

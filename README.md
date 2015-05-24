@@ -45,9 +45,9 @@ const cursor2 = Providence({
 
 The "boxed" root data structure. The user must provide this.
 
-**options.keyPath**
+**options.path**
 
-An array of the keypath.
+An array of the path/keypath.
 
 **options.root.unbox** 
 
@@ -69,7 +69,7 @@ By default this is an identity function (e.g. `function(x) {return x;}`).
 
 **options.getIn** 
 
-A higher order function, which given the unboxed root data, shall return a function, `getIn`, with the signature: `getIn(keypath[, notSetValue])`.
+A higher order function, which given the unboxed root data, shall return a function, `getIn`, with the signature: `getIn(path[, notSetValue])`.
 
 This is used internally for `deref()` and `update()`.
 
@@ -82,7 +82,7 @@ function _defaultGetIn(rootData) {
 
 **options.setIn** 
 
-A higher order function, which given the unboxed root data, shall return a function, `setIn`, with the signature: `setIn(keypath, newvalue)`.
+A higher order function, which given the unboxed root data, shall return a function, `setIn`, with the signature: `setIn(path, newvalue)`.
 
 This is used internally for `update()`.
 
@@ -95,7 +95,7 @@ function _defaultSetIn(rootData) {
 
 **options.deleteIn** 
 
-A higher order function, which given the unboxed root data, shall return a function, `deleteIn`, with the signature: `deleteIn(keypath)`.
+A higher order function, which given the unboxed root data, shall return a function, `deleteIn`, with the signature: `deleteIn(path)`.
 
 This is used internally for `delete()`.
 
@@ -132,22 +132,18 @@ Alias of `Providence.prototype.deref([notSetValue])`.
 
 ##### `Providence.prototype.deref([notSetValue])`
 
-Dereference by unboxing the root data and getting the value at keypath.
+Dereference by unboxing the root data and getting the value at path.
 
-If keypath happens to not exist, `notSetValue` is, instead, returned.
+If path happens to not exist, `notSetValue` is, instead, returned.
 If `notSetValue` is not provided, it becomes value: `void 0`.
 
 ##### `Providence.prototype.exists()`
 
-Return true if a keypath exists within the unboxed root data.
+Return true if a path exists within the unboxed root data.
 
-##### `Providence.prototype.keyPath()`
+##### `Providence.prototype.path()`
 
-Returns the array representation of the keypath.
-
-##### `Providence.prototype.keypath()`
-
-Alias of `Providence.prototype.keyPath()`.
+Returns the array representation of the path.
 
 ##### `Providence.prototype.options()`
 
@@ -167,34 +163,34 @@ By default, this is the same behaviour as cursor() method for immutable-js curso
 
 ##### `Providence.prototype.update([notSetValue,] updater)`
 
-Update value in the unboxed root data at keypath using the updater function.
-If the keypath exists, updater is called using:
-- the value at keypath
+Update value in the unboxed root data at path using the updater function.
+If the path exists, updater is called using:
+- the value at path
 - unboxed root data
 - boxed root data
 
-If keypath doesn't exist, notSetValue is used as the initial value.
+If path doesn't exist, notSetValue is used as the initial value.
 If notSetValue is not defined, it has value void 0.
 
-If updater returns the same value the value at keypath (or notSetValue),
-then no changes has truly occured, and the current cursor is instead returned.
+If updater returns the same value the value at path (or notSetValue),
+then no changes has truly occurred, and the current cursor is instead returned.
 
-Otherwise, the new value is replaced at keypath of the unboxed root data, and a new providence cursor is returned with the new boxed root data.
+Otherwise, the new value is replaced at path of the unboxed root data, and a new providence cursor is returned with the new boxed root data.
 In addition, any defined functions at onUpdate and/or _onUpdate within options will be called with the following:
 - options
-- cursor keypath
+- cursor path
 - new unboxed root data with the new value
 - previous unboxed root data
 
 ##### `Providence.prototype.delete()`
 
-Delete value at keypath.
+Delete value at path.
 
 If the new unboxed root data is the same as the previous, original unboxed root data, then the current cursor is returned.
 
 Otherwise, any defined functions at onUpdate and/or _onUpdate within options will be called with the following:
 - options
-- cursor keypath
+- cursor path
 - new unboxed root data with the new value
 - previous unboxed root data
 

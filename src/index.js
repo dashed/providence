@@ -18,17 +18,17 @@ const objHas = require('lodash.has');
 
 const utils = require('./utils');
 // TODO: make these overridable externally
-const { valToKeyPath, newKeyPath } = utils;
+const { valToPath, newPath } = utils;
 
 /* constants */
 const NOT_SET = {}; // sentinel value
 const IDENTITY = (x) => x;
-const INITIAL_KEYPATH = [];
+const INITIAL_PATH = [];
 // paths
 const UNBOXER_PATH = ['root', 'unbox'];
 const BOXER_PATH = ['root', 'box'];
 const DATA_PATH = ['root', 'data'];
-const KEYPATH_PATH = ['keyPath'];
+const PATH_PATH = ['path'];
 const GETIN_PATH = ['getIn'];
 const SETIN_PATH = ['setIn'];
 const DELETEIN_PATH = ['deleteIn'];
@@ -43,7 +43,7 @@ const _ONUPDATE_PATH = ['_onUpdate'];
 const DEFAULTS = [
     [UNBOXER_PATH, IDENTITY],
     [BOXER_PATH, IDENTITY],
-    [KEYPATH_PATH, INITIAL_KEYPATH],
+    [PATH_PATH, INITIAL_PATH],
     [GETIN_PATH, _defaultGetIn],
     [SETIN_PATH, _defaultSetIn],
     [DELETEIN_PATH, _defaultDeleteIn]
@@ -76,7 +76,7 @@ function Providence(options = NOT_SET, skipDataCheck = false, skipProcessOptions
     // Used for caching value of the Providence object.
     // When the unboxed root data and this._refUnboxedRootData are equal,
     // then unboxed root data hasn't changed since the previous look up, and thus
-    // this._cachedValue and value at keypath also hasn't changed.
+    // this._cachedValue and value at path also hasn't changed.
     this._refUnboxedRootData = NOT_SET;
     this._cachedValue = NOT_SET;
 
@@ -98,12 +98,12 @@ Providence.prototype.toString = function() {
 }
 
 /**
- * Dereference by unboxing the root data and getting the value at keypath.
- * If keypath happens to not exist, notSetValue is, instead, returned.
+ * Dereference by unboxing the root data and getting the value at path.
+ * If path happens to not exist, notSetValue is, instead, returned.
  * If notSetValue is not provided, it becomes value: void 0.
  *
  * @param  {any} notSetValue
- * @return {any}             The sub-structure value at keypath relative to
+ * @return {any}             The sub-structure value at path relative to
  *                           root data.
  */
 Providence.prototype.valueOf =
@@ -120,11 +120,11 @@ Providence.prototype.deref = function(notSetValue) {
         return resolvedValue === NOT_SET ? notSetValue : resolvedValue;
     }
 
-    const keyPath = options.getIn(KEYPATH_PATH);
+    const path = options.getIn(PATH_PATH);
     const fetchGetIn = options.getIn(GETIN_PATH);
     const getIn = fetchGetIn(unboxed);
 
-    const resolvedValue = getIn(keyPath, NOT_SET);
+    const resolvedValue = getIn(path, NOT_SET);
 
     // cache
     this._refUnboxedRootData = unboxed;
@@ -138,7 +138,7 @@ Providence.prototype.deref = function(notSetValue) {
 }
 
 /**
- * Return true if a keypath exists within the unboxed root data.
+ * Return true if a path exists within the unboxed root data.
  *
  * @return {Bool}
  */
@@ -147,13 +147,12 @@ Providence.prototype.exists = function() {
 }
 
 /**
- * Returns the array representation of the keypath.
+ * Returns the array representation of the path.
  *
  * @type {Array}
  */
-Providence.prototype.keypath =
-Providence.prototype.keyPath = function() {
-    return this._options.getIn(KEYPATH_PATH);
+Providence.prototype.path = function() {
+    return this._options.getIn(PATH_PATH);
 }
 
 /**
@@ -194,44 +193,44 @@ Providence.prototype.cursor = function(keyValue) {
         return this;
     }
 
-    // TODO: overridable valToKeyPath; expect this to be a pure function
-    // valToKeyPath converts keyValue to keyPath
-    const subKeyPath = valToKeyPath(keyValue);
+    // TODO: overridable valToPath; expect this to be a pure function
+    // valToPath converts keyValue to path
+    const subpath = valToPath(keyValue);
 
     // TODO: validateKeyPath that returns bool; expect this to be a pure function
     // be able to abort cursor procedure. aborting returns this instead.
-    if(subKeyPath.length === 0) {
+    if(subpath.length === 0) {
         return this;
     }
 
     const options = this._options;
 
-    const keyPath = options.getIn(KEYPATH_PATH);
-    const newOptions = options.setIn(KEYPATH_PATH, newKeyPath(keyPath, subKeyPath));
+    const path = options.getIn(PATH_PATH);
+    const newOptions = options.setIn(PATH_PATH, newPath(path, subpath));
 
     return new (this.constructor)(newOptions, true, true);
 }
 
 
 /**
- * Update value in the unboxed root data at keypath using the updater function.
- * If the keypath exists, updater is called using:
- * - the value at keypath
+ * Update value in the unboxed root data at path using the updater function.
+ * If the path exists, updater is called using:
+ * - the value at path
  * - unboxed root data
  * - boxed root data
  *
- * If keypath doesn't exist, notSetValue is used as the initial value.
+ * If path doesn't exist, notSetValue is used as the initial value.
  * If notSetValue is not defined, it has value void 0.
  *
- * If updater returns the same value the value at keypath (or notSetValue),
+ * If updater returns the same value the value at path (or notSetValue),
  * then no changes has truly occured, and the current cursor is instead returned.
  *
- * Otherwise, the new value is replaced at keypath of the unboxed root data,
+ * Otherwise, the new value is replaced at path of the unboxed root data,
  * and a new providence cursor is returned with the new boxed root data.
  * In addition, any defined functions at onUpdate and/or _onUpdate within options
  * will be called with the following:
  * - options
- * - cursor keypath
+ * - cursor path
  * - new unboxed root data with the new value
  * - previous unboxed root data
  *
@@ -251,11 +250,11 @@ Providence.prototype.update = function(notSetValue, updater) {
     // unbox root data
     const { rootData, unboxed } = this.unboxRootData();
 
-    // fetch state at keypath
+    // fetch state at path
     const fetchGetIn = options.getIn(GETIN_PATH);
     const getIn = fetchGetIn(unboxed);
-    const keyPath = options.getIn(KEYPATH_PATH);
-    const state = getIn(keyPath, notSetValue);
+    const path = options.getIn(PATH_PATH);
+    const state = getIn(path, notSetValue);
 
     // get new state
     //
@@ -270,16 +269,16 @@ Providence.prototype.update = function(notSetValue, updater) {
         return this;
     }
 
-    // merge new state at keyPath into root data
+    // merge new state at path into root data
     const fetchSetIn = options.getIn(SETIN_PATH);
     const setIn = fetchSetIn(unboxed);
-    const newRootData = setIn(keyPath, newState);
+    const newRootData = setIn(path, newState);
 
     // box new root data
     const boxer = options.getIn(BOXER_PATH);
     const boxed = boxer(newRootData, rootData);
 
-    callOnUpdate(options, keyPath, newRootData, unboxed);
+    callOnUpdate(options, path, newRootData, unboxed);
 
     const newOptions = options.setIn(DATA_PATH, boxed);
 
@@ -287,7 +286,7 @@ Providence.prototype.update = function(notSetValue, updater) {
 }
 
 /**
- * Delete value at keypath.
+ * Delete value at path.
  *
  * If the new unboxed root data is the same as the previous, original unboxed root data,
  * then the current cursor is returned.
@@ -295,7 +294,7 @@ Providence.prototype.update = function(notSetValue, updater) {
  * Otherwise, any defined functions at onUpdate and/or _onUpdate within options
  * will be called with the following:
  * - options
- * - cursor keypath
+ * - cursor path
  * - new unboxed root data with the new value
  * - previous unboxed root data
  *
@@ -314,8 +313,8 @@ Providence.prototype.delete = function() {
 
     const fetchDeleteIn = options.getIn(DELETEIN_PATH);
     const deleteIn = fetchDeleteIn(unboxed);
-    const keyPath = options.getIn(KEYPATH_PATH);
-    const newRootData = deleteIn(keyPath);
+    const path = options.getIn(PATH_PATH);
+    const newRootData = deleteIn(path);
 
     // TODO: delegate to an overridable: confirmChange(prev, next)
     if(unboxed === newRootData) {
@@ -326,7 +325,7 @@ Providence.prototype.delete = function() {
     const boxer = options.getIn(BOXER_PATH);
     const boxed = boxer(newRootData, rootData);
 
-    callOnUpdate(options, keyPath, newRootData, unboxed);
+    callOnUpdate(options, path, newRootData, unboxed);
 
     const newOptions = options.setIn(DATA_PATH, boxed);
 
@@ -385,7 +384,7 @@ function validateOptions(options) {
     const setIn = _plainSetIn(options);
 
     const rootData = getIn(DATA_PATH, NOT_SET);
-    const keyPath = getIn(KEYPATH_PATH, NOT_SET);
+    const path = getIn(PATH_PATH, NOT_SET);
 
     // Set null values for paths so that they're not transformed by Immutable.fromJS().
     // We do this in case that rootData is a deeply nested plain object.
@@ -398,8 +397,8 @@ function validateOptions(options) {
         setIn(DATA_PATH, null);
     }
 
-    if(keyPath !== NOT_SET) {
-        setIn(KEYPATH_PATH, null);
+    if(path !== NOT_SET) {
+        setIn(PATH_PATH, null);
     }
 
     options = Immutable.fromJS(options);
@@ -410,9 +409,9 @@ function validateOptions(options) {
         setIn(DATA_PATH, rootData);
     }
 
-    if(keyPath !== NOT_SET) {
-        options = options.setIn(KEYPATH_PATH, keyPath);
-        setIn(KEYPATH_PATH, keyPath);
+    if(path !== NOT_SET) {
+        options = options.setIn(PATH_PATH, path);
+        setIn(PATH_PATH, path);
     }
 
     return options;
@@ -443,15 +442,15 @@ function setIfNotSet(_fetchHasIn, _fetchSetIn, options, path, value) {
     return options;
 }
 
-function callOnUpdate(options, keyPath, newRoot, oldRoot) {
+function callOnUpdate(options, path, newRoot, oldRoot) {
     const _onUpdate = options.getIn(_ONUPDATE_PATH, NOT_SET);
     if(_onUpdate !== NOT_SET) {
-        _onUpdate.call(null, options, keyPath, newRoot, oldRoot);
+        _onUpdate.call(null, options, path, newRoot, oldRoot);
     }
 
     const onUpdate = options.getIn(ONUPDATE_PATH, NOT_SET);
     if(onUpdate !== NOT_SET) {
-        onUpdate.call(null, options, keyPath, newRoot, oldRoot);
+        onUpdate.call(null, options, path, newRoot, oldRoot);
     }
 }
 

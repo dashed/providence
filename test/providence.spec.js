@@ -40,8 +40,8 @@ describe('Providence', function() {
                 }
             });
 
-            const hasIn = function(keypath) {
-                return cursor._options.hasIn(keypath);
+            const hasIn = function(path) {
+                return cursor._options.hasIn(path);
             }
 
             const PATHS = [
@@ -49,14 +49,14 @@ describe('Providence', function() {
                 ['root', 'unbox'],
                 ['root', 'box'],
                 ['root', 'data'],
-                ['keyPath'],
+                ['path'],
                 ['getIn'],
                 ['setIn'],
                 ['deleteIn']
             ];
 
-            for (let keyPath of PATHS) {
-                expect(hasIn(keyPath)).to.be.true;
+            for (let path of PATHS) {
+                expect(hasIn(path)).to.be.true;
             }
         });
     });
@@ -148,27 +148,27 @@ describe('Providence', function() {
             expect(throwing({})).to.throw();
         });
 
-        it('should set default keyPath', function() {
+        it('should set default path', function() {
 
             const cursor = Providence(defaultOptions);
 
-            const keyPath = cursor._options.getIn(['keyPath']);
+            const path = cursor._options.getIn(['path']);
 
-            expect(keyPath).to.be.instanceof(Array);
-            expect(keyPath).to.be.empty;
+            expect(path).to.be.instanceof(Array);
+            expect(path).to.be.empty;
         });
 
-        it('should be able to set keyPath', function() {
+        it('should be able to set path', function() {
 
-            const KEYPATH = ['a', 'b'];
-            defaultOptions.keyPath = KEYPATH;
+            const _PATH = ['a', 'b'];
+            defaultOptions.path = _PATH;
 
             const cursor = Providence(defaultOptions);
 
-            const keyPath = cursor._options.getIn(['keyPath']);
+            const path = cursor._options.getIn(['path']);
 
-            expect(keyPath).to.be.instanceof(Array);
-            expect(keyPath).to.equal(KEYPATH);
+            expect(path).to.be.instanceof(Array);
+            expect(path).to.equal(_PATH);
         });
 
         it('should be able to set option root.box', function() {
@@ -230,7 +230,7 @@ describe('Providence', function() {
             expect(cursor._options.hasIn(['deleteIn'])).to.be.true;
             expect(cursor._options.hasIn(['getIn'])).to.be.true;
             expect(cursor._options.hasIn(['setIn'])).to.be.true;
-            expect(cursor._options.hasIn(['keyPath'])).to.be.true;
+            expect(cursor._options.hasIn(['path'])).to.be.true;
         });
 
         // whitebox testing for skipDataCheck
@@ -277,7 +277,7 @@ describe('Providence', function() {
 
         it('should be able to deref unboxed root data', function() {
 
-            defaultOptions.keyPath = [];
+            defaultOptions.path = [];
 
             const cursor = Providence(defaultOptions);
             expect(cursor.deref()).to.equal(DATA);
@@ -285,7 +285,7 @@ describe('Providence', function() {
 
         it('should deref path that was set', function() {
 
-            defaultOptions.keyPath = ['foo', 'bar'];
+            defaultOptions.path = ['foo', 'bar'];
 
             const cursor = Providence(defaultOptions);
             expect(cursor.deref()).to.equal('baz');
@@ -293,7 +293,7 @@ describe('Providence', function() {
 
         it('should deref an unset path and return notSetValue', function() {
 
-            defaultOptions.keyPath = ['foo', 'bar', 'quz'];
+            defaultOptions.path = ['foo', 'bar', 'quz'];
 
             const NOT_SET = {};
 
@@ -369,19 +369,19 @@ describe('Providence', function() {
         });
 
         it('should return true on path that exists', function() {
-            defaultOptions.keyPath = ['foo', 'bar'];
+            defaultOptions.path = ['foo', 'bar'];
             const cursor = Providence(defaultOptions);
             expect(cursor.exists()).to.be.true;
         });
 
         it('should return false on path that does not exists', function() {
-            defaultOptions.keyPath = ['foo', 'qux'];
+            defaultOptions.path = ['foo', 'qux'];
             const cursor = Providence(defaultOptions);
             expect(cursor.exists()).to.be.false;
         });
     });
 
-    describe('#keyPath / #keypath', function() {
+    describe('#path', function() {
 
         let defaultOptions;
 
@@ -397,37 +397,29 @@ describe('Providence', function() {
             };
         });
 
-        it('#keyPath and #keypath are aliases of each other', function() {
-            expect(Providence.prototype.keypath).to.equal(Providence.prototype.keyPath);
-        });
+        it('should return default path', function() {
 
-        it('should return default keyPath', function() {
-
-            // defaultOptions has no keyPath set.
+            // defaultOptions has no path set.
             const cursor = Providence(defaultOptions);
 
-            const keyPath = cursor.keyPath();
-            const keyPath2 = cursor.keypath();
+            const path = cursor.path();
 
-            expect(keyPath).to.equal(keyPath2);
-            expect(keyPath).to.be.instanceof(Array);
-            expect(keyPath).to.be.empty;
+            expect(path).to.be.instanceof(Array);
+            expect(path).to.be.empty;
         });
 
-        it('should return configured keyPath', function() {
+        it('should return configured path', function() {
 
-            const KEYPATH = ['a', 'b'];
+            const _PATH = ['a', 'b'];
 
-            defaultOptions.keyPath = KEYPATH;
+            defaultOptions.path = _PATH;
 
             const cursor = Providence(defaultOptions);
 
-            const keyPath = cursor.keyPath();
-            const keyPath2 = cursor.keypath();
+            const path = cursor.path();
 
-            expect(keyPath).to.equal(keyPath2);
-            expect(keyPath).to.be.instanceof(Array);
-            expect(keyPath).to.equal(KEYPATH);
+            expect(path).to.be.instanceof(Array);
+            expect(path).to.equal(_PATH);
         });
     });
 
@@ -482,7 +474,7 @@ describe('Providence', function() {
 
     describe('#cursor', function() {
 
-        it('should return itself when given no sub-keyPath', function() {
+        it('should return itself when given no subpath', function() {
 
             const cursor = Providence({
                 root: {
@@ -494,7 +486,7 @@ describe('Providence', function() {
             expect(cursor.cursor([])).to.equal(cursor);
         });
 
-        it('should return new Providence object with sub-keyPath that is an array', function() {
+        it('should return new Providence object with subpath that is an array', function() {
 
             const cursor = Providence({
                 root: {
@@ -506,21 +498,21 @@ describe('Providence', function() {
             const options2 = cursor2.options();
 
             expect(cursor2).to.not.equal(cursor);
-            expect(options2.getIn(['keyPath'])).to.eql(['a']);
+            expect(options2.getIn(['path'])).to.eql(['a']);
 
             const cursor3 = Providence({
                 root: {
                     data: {}
                 },
-                keyPath: ['x']
+                path: ['x']
             });
 
             const cursor4 = cursor3.cursor(['y', 'z']);
             const options4 = cursor4.options();
-            expect(options4.getIn(['keyPath'])).to.eql(['x', 'y', 'z']);
+            expect(options4.getIn(['path'])).to.eql(['x', 'y', 'z']);
         });
 
-        it('should return new Providence object with sub-keyPath that is not an array', function() {
+        it('should return new Providence object with subpath that is not an array', function() {
 
             const cursor = Providence({
                 root: {
@@ -532,39 +524,39 @@ describe('Providence', function() {
             const options2 = cursor2.options();
 
             expect(cursor2).to.not.equal(cursor);
-            expect(options2.getIn(['keyPath'])).to.eql(['a']);
+            expect(options2.getIn(['path'])).to.eql(['a']);
 
             const cursor3 = Providence({
                 root: {
                     data: {}
                 },
-                keyPath: ['x']
+                path: ['x']
             });
 
             const cursor4 = cursor3.cursor('y').cursor('z');
             const options4 = cursor4.options();
-            expect(options4.getIn(['keyPath'])).to.eql(['x', 'y', 'z']);
+            expect(options4.getIn(['path'])).to.eql(['x', 'y', 'z']);
         });
 
-        it('should only modify keyPath', function() {
+        it('should only modify path', function() {
 
             const cursor = Providence({
                 root: {
                     data: {}
                 },
-                keyPath: ['foo']
+                path: ['foo']
             });
 
             const cursor2 = cursor.cursor(['bar', 'baz']);
 
             const options = cursor.options();
-            const optionsExpected = options.setIn(['keyPath'], ['foo', 'bar', 'baz']);
+            const optionsExpected = options.setIn(['path'], ['foo', 'bar', 'baz']);
             const optionsActual = cursor2.options();
 
             expect(optionsActual.toJS()).to.eql(optionsExpected.toJS());
         });
 
-        it('should not process options when creating new Providence object with sub-keyPath', function() {
+        it('should not process options when creating new Providence object with subpath', function() {
 
             // assuming that through design by contract, this._options isn't externally modified;
             // so there is no need to re-process the options
@@ -573,7 +565,7 @@ describe('Providence', function() {
                 root: {
                     data: {}
                 },
-                keyPath: ['foo']
+                path: ['foo']
             });
 
             // default value is set by processOptions()
@@ -584,7 +576,7 @@ describe('Providence', function() {
             expect(cursor2._options.hasIn(['getIn'])).to.be.false;
         });
 
-        it('should not validate root data when creating new Providence object with sub-keyPath', function() {
+        it('should not validate root data when creating new Providence object with subpath', function() {
 
             // assuming that through design by contract, this._options isn't externally modified;
             // so there is no need to re-validate root data
@@ -593,7 +585,7 @@ describe('Providence', function() {
                 root: {
                     data: {}
                 },
-                keyPath: ['foo']
+                path: ['foo']
             });
 
             cursor._options = cursor._options.deleteIn(['root', 'data']);
@@ -618,7 +610,7 @@ describe('Providence', function() {
                 root: {
                     data: data
                 },
-                keyPath: ['x', 'y']
+                path: ['x', 'y']
             };
         });
 
@@ -716,19 +708,19 @@ describe('Providence', function() {
             let calls = 0;
 
             let cursor;
-            options.onUpdate = (_options, keyPath, newRoot, oldRoot) => {
+            options.onUpdate = (_options, path, newRoot, oldRoot) => {
                 calls++;
 
                 expect(_options).to.equal(cursor._options);
-                expect(keyPath).to.eql(['x', 'y']);
+                expect(path).to.eql(['x', 'y']);
                 expect(newRoot).to.not.equal(oldRoot);
             };
 
-            options._onUpdate = (_options, keyPath, newRoot, oldRoot) => {
+            options._onUpdate = (_options, path, newRoot, oldRoot) => {
                 calls++;
 
                 expect(_options).to.equal(cursor._options);
-                expect(keyPath).to.eql(['x', 'y']);
+                expect(path).to.eql(['x', 'y']);
                 expect(newRoot).to.not.equal(oldRoot);
             };
 
@@ -818,7 +810,7 @@ describe('Providence', function() {
                 root: {
                     data: data
                 },
-                keyPath: ['x', 'y']
+                path: ['x', 'y']
             };
         });
 
@@ -895,19 +887,19 @@ describe('Providence', function() {
             let calls = 0;
 
             let cursor;
-            options.onUpdate = (_options, keyPath, newRoot, oldRoot) => {
+            options.onUpdate = (_options, path, newRoot, oldRoot) => {
                 calls++;
 
                 expect(_options).to.equal(cursor._options);
-                expect(keyPath).to.eql(['x', 'y']);
+                expect(path).to.eql(['x', 'y']);
                 expect(newRoot).to.not.equal(oldRoot);
             };
 
-            options._onUpdate = (_options, keyPath, newRoot, oldRoot) => {
+            options._onUpdate = (_options, path, newRoot, oldRoot) => {
                 calls++;
 
                 expect(_options).to.equal(cursor._options);
-                expect(keyPath).to.eql(['x', 'y']);
+                expect(path).to.eql(['x', 'y']);
                 expect(newRoot).to.not.equal(oldRoot);
             };
 
@@ -919,7 +911,7 @@ describe('Providence', function() {
         });
 
         it('should return itself when there is no change', function() {
-            options.keyPath = ['x', 'y', 'g'];
+            options.path = ['x', 'y', 'g'];
             const cursor = Providence(options);
             const ret = cursor.delete();
             expect(cursor).to.equal(ret);
@@ -939,7 +931,7 @@ describe('Providence', function() {
                 return x;
             };
 
-            options.keyPath = ['x', 'y', 'g'];
+            options.path = ['x', 'y', 'g'];
             const cursor = Providence(options);
             const ret = cursor.delete();
 
@@ -959,7 +951,7 @@ describe('Providence', function() {
                 calls++;
             };
 
-            options.keyPath = ['x', 'y', 'g'];
+            options.path = ['x', 'y', 'g'];
             cursor = Providence(options);
             const ret = cursor.delete();
 
