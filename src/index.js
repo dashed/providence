@@ -130,10 +130,6 @@ Providence.prototype.deref = function(notSetValue) {
     this._refUnboxedRootData = unboxed;
     this._cachedValue = resolvedValue;
 
-    if(this._firstValue === NOT_SET) {
-        this._firstValue = resolvedValue;
-    }
-
     return resolvedValue === NOT_SET ? notSetValue : resolvedValue;
 }
 
