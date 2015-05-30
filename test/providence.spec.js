@@ -52,7 +52,9 @@ describe('Providence', function() {
                 ['path'],
                 ['getIn'],
                 ['setIn'],
-                ['deleteIn']
+                ['deleteIn'],
+                ['forEach'],
+                ['reduce']
             ];
 
             for (let path of PATHS) {
@@ -227,10 +229,12 @@ describe('Providence', function() {
             expect(cursor._options.hasIn(['root', 'data'])).to.be.true;
             expect(cursor._options.hasIn(['root', 'unbox'])).to.be.true;
             expect(cursor._options.hasIn(['root', 'box'])).to.be.true;
+            expect(cursor._options.hasIn(['path'])).to.be.true;
             expect(cursor._options.hasIn(['deleteIn'])).to.be.true;
             expect(cursor._options.hasIn(['getIn'])).to.be.true;
             expect(cursor._options.hasIn(['setIn'])).to.be.true;
-            expect(cursor._options.hasIn(['path'])).to.be.true;
+            expect(cursor._options.hasIn(['forEach'])).to.be.true;
+            expect(cursor._options.hasIn(['reduce'])).to.be.true;
         });
 
         // whitebox testing for skipDataCheck
@@ -778,7 +782,6 @@ describe('Providence', function() {
 
             let calls = 0;
 
-            let cursor;
             options.onUpdate = () => {
                 calls++;
             };
@@ -786,7 +789,7 @@ describe('Providence', function() {
                 calls++;
             };
 
-            cursor = Providence(options);
+            const cursor = Providence(options);
             const ret = cursor.update(x => x);
 
             expect(calls).to.equal(0);
@@ -957,6 +960,86 @@ describe('Providence', function() {
 
             expect(calls).to.equal(0);
             expect(cursor).to.equal(ret);
+        });
+    });
+
+    describe('#forEach', function() {
+
+        let data, options;
+        beforeEach(function() {
+            data = Immutable.fromJS({
+                x: {
+                    y: {
+                        z: 'foo',
+                        zz: 'bar',
+                        zzz: 'qux'
+                    }
+                }
+            });
+
+            options = {
+                root: {
+                    data: data
+                },
+                path: ['x', 'y']
+            };
+        });
+
+        it('should provide cursor to sideEffect', function() {
+
+            let calls = 0;
+            const cursor = Providence(options);
+
+            cursor.forEach(function(value, key, collection) {
+                expect(value instanceof Providence).to.be.true;
+                expect(collection.get(key)).to.equal(value.deref());
+                expect(Map.isMap(collection)).to.be.true;
+                calls++;
+            });
+
+            expect(calls).to.equal(3);
+        });
+    });
+
+    describe('#reduce', function() {
+
+        let data, options;
+        beforeEach(function() {
+            data = Immutable.fromJS({
+                x: {
+                    y: {
+                        z: 'foo',
+                        zz: 'bar',
+                        zzz: 'qux'
+                    }
+                }
+            });
+
+            options = {
+                root: {
+                    data: data
+                },
+                path: ['x', 'y']
+            };
+        });
+
+        it('should provide cursor to reducer', function() {
+
+            let calls = 0;
+            const cursor = Providence(options);
+
+            const reduced = cursor.reduce(function(acc, value, key, collection) {
+                expect(value instanceof Providence).to.be.true;
+                expect(collection.get(key)).to.equal(value.deref());
+                expect(Map.isMap(collection)).to.be.true;
+                calls++;
+                acc.push(value.deref());
+                return acc;
+            }, []);
+
+            expect(reduced).to.eql(['foo', 'bar', 'qux']);
+
+            expect(calls).to.equal(3);
         });
     });
 

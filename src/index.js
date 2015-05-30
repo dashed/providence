@@ -32,6 +32,8 @@ const PATH_PATH = ['path'];
 const GETIN_PATH = ['getIn'];
 const SETIN_PATH = ['setIn'];
 const DELETEIN_PATH = ['deleteIn'];
+const FOREACH_PATH = ['forEach'];
+const REDUCE_PATH = ['reduce'];
 const ONUPDATE_PATH = ['onUpdate'];
 // Internal _onUpdate function; useful for when Providence is inherited.
 // Whereas, onUpdate function is used by users.
@@ -44,9 +46,11 @@ const DEFAULTS = [
     [UNBOXER_PATH, IDENTITY],
     [BOXER_PATH, IDENTITY],
     [PATH_PATH, INITIAL_PATH],
-    [GETIN_PATH, _defaultGetIn],
-    [SETIN_PATH, _defaultSetIn],
-    [DELETEIN_PATH, _defaultDeleteIn]
+    [GETIN_PATH, _default.bind(null, 'getIn')],
+    [SETIN_PATH, _default.bind(null, 'setIn')],
+    [DELETEIN_PATH, _default.bind(null, 'deleteIn')],
+    [FOREACH_PATH, _default.bind(null, 'forEach')],
+    [REDUCE_PATH, _default.bind(null, 'reduce')]
 ];
 const PATH = 0;
 const VALUE = 1;
@@ -328,6 +332,42 @@ Providence.prototype.delete = function() {
     return new (this.constructor)(newOptions, true, true);
 }
 
+Providence.prototype.forEach = function(sideEffect, ...rest) {
+
+    const state = this.deref(NOT_SET);
+    if(state === NOT_SET) {
+        return;
+    }
+
+    const fetchForEach = this._options.getIn(FOREACH_PATH);
+    const forEach = fetchForEach(state);
+
+    const wrapped = (value, key, ..._rest) => {
+        const cursor = this.cursor(key);
+        return sideEffect.call(sideEffect, cursor, key, ..._rest);
+    }
+
+    return forEach(wrapped, ...rest);
+}
+
+Providence.prototype.reduce = function(reducer, ...rest) {
+
+    const state = this.deref(NOT_SET);
+    if(state === NOT_SET) {
+        return;
+    }
+
+    const fetchReduce = this._options.getIn(REDUCE_PATH);
+    const reduce = fetchReduce(state);
+
+    const wrapped = (accumulator, value, key, ..._rest) => {
+        const cursor = this.cursor(key);
+        return reducer.call(reducer, accumulator, cursor, key, ..._rest);
+    }
+
+    return reduce(wrapped, ...rest);
+}
+
 Providence.prototype.unboxRootData = function() {
     const options = this._options;
 
@@ -470,14 +510,6 @@ function _ImmutableSetIn(obj) {
     return obj.setIn.bind(obj);
 }
 
-function _defaultGetIn(rootData) {
-    return rootData.getIn.bind(rootData);
-}
-
-function _defaultSetIn(rootData) {
-    return rootData.setIn.bind(rootData);
-}
-
-function _defaultDeleteIn(rootData) {
-    return rootData.deleteIn.bind(rootData);
+function _default(method, rootData) {
+    return rootData[method].bind(rootData);
 }
