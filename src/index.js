@@ -368,6 +368,11 @@ Providence.prototype.reduce = function(reducer, ...rest) {
     return reduce(wrapped, ...rest);
 }
 
+Providence.prototype.root = function() {
+    const newOptions = this._options.setIn(PATH_PATH, []);
+    return new (this.constructor)(newOptions, true, true);
+}
+
 Providence.prototype.unboxRootData = function() {
     const options = this._options;
 
