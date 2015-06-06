@@ -1043,6 +1043,39 @@ describe('Providence', function() {
         });
     });
 
+    describe('#root', function() {
+
+        let data, options;
+        beforeEach(function() {
+            data = Immutable.fromJS({
+                x: {
+                    y: {
+                        z: 'foo'
+                    }
+                }
+            });
+
+            options = {
+                root: {
+                    data: data
+                },
+                path: ['x', 'y']
+            };
+        });
+
+        it('should be able to return root cursor', function() {
+            const cursor = Providence(options);
+
+            const rootCursor = cursor.root();
+
+            expect(cursor.path()).to.eql(['x', 'y']);
+            expect(cursor.deref()).to.equal(data.getIn(['x', 'y']));
+
+            expect(rootCursor.path()).to.eql([]);
+            expect(rootCursor.deref()).to.equal(data);
+        });
+    });
+
     describe('extending', function() {
 
         let calls;
