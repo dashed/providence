@@ -30,14 +30,14 @@
     "immutable": "3.x"
   },
   "devDependencies": {
-    "babel": "^5.4.7",
+    "babel": "^5.8.23",
     "chai": "^2.3.0",
-    "mocha": "^2.2.5"
+    "mocha": "^2.3.2"
   },
   "dependencies": {
     "lodash.get": "^3.7.0",
     "lodash.has": "^3.2.1",
-    "lodash.isplainobject": "^3.1.0",
+    "lodash.isplainobject": "^3.2.0",
     "lodash.set": "^3.7.4"
   }
 }
