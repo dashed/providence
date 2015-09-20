@@ -618,6 +618,37 @@ describe('Providence', function() {
             };
         });
 
+        it('should be able to receive notSetValue and update using it', function() {
+            const cursor = Providence(options);
+
+            const cursor2 = cursor.cursor('foo').update('bar', x => x);
+
+            expect(cursor).to.not.equal(cursor2);
+
+            expect(cursor.options().getIn(['root', 'data']).toJS()).to.eql({
+                x: {
+                    y: {
+                        z: 'foo'
+                    }
+                }
+            });
+
+            expect(cursor2.options().getIn(['root', 'data']).toJS()).to.eql({
+                x: {
+                    y: {
+                        z: 'foo',
+                        foo: 'bar'
+                    }
+                },
+            });
+
+            expect(cursor.deref().toJS()).to.eql({
+                z: 'foo'
+            });
+
+            expect(cursor2.deref()).to.equal('bar');
+        });
+
         it('should be able to update at cursor path', function() {
 
             const cursor = Providence(options);
@@ -1132,9 +1163,9 @@ describe('Providence', function() {
 
             expect(cursor4 instanceof Inherited).to.be.true;
             expect(cursor4 instanceof Providence).to.be.true;
-            expect(cursor4).to.equal(cursor3);
+            expect(cursor4).to.not.equal(cursor3);
             expect(cursor4).to.have.property('method');
-            expect(calls).to.equal(3);
+            expect(calls).to.equal(6);
 
             const cursor5 = cursor4.update(x => Immutable.fromJS({
                 x: 'x'
@@ -1144,7 +1175,7 @@ describe('Providence', function() {
             expect(cursor5 instanceof Providence).to.be.true;
             expect(cursor5).to.have.property('method');
             expect(cursor4).to.not.equal(cursor5);
-            expect(calls).to.equal(6);
+            expect(calls).to.equal(9);
 
             const cursor6 = cursor5.delete();
 
@@ -1152,7 +1183,7 @@ describe('Providence', function() {
             expect(cursor6 instanceof Providence).to.be.true;
             expect(cursor6).to.have.property('method');
             expect(cursor5).to.not.equal(cursor6);
-            expect(calls).to.equal(9);
+            expect(calls).to.equal(12);
 
         });
     });

@@ -254,7 +254,7 @@ Providence.prototype.update = function(notSetValue, updater) {
     const fetchGetIn = options.getIn(GETIN_PATH);
     const getIn = fetchGetIn(unboxed);
     const path = options.getIn(PATH_PATH);
-    const state = getIn(path, notSetValue);
+    const state = getIn(path, NOT_SET);
 
     // get new state
     //
@@ -262,7 +262,7 @@ Providence.prototype.update = function(notSetValue, updater) {
     // - state      the object to be updated
     // - unboxed    unboxed root data
     // - rootData   boxed root data
-    const newState = updater.call(null, state, unboxed, rootData);
+    const newState = updater.call(null, state === NOT_SET ? notSetValue : state, unboxed, rootData);
 
     // TODO: delegate to an overridable: confirmChange(prev, next)
     if(state === newState) {
