@@ -1,5 +1,7 @@
 # providence [![Build Status](https://travis-ci.org/Dashed/providence.svg)](https://travis-ci.org/Dashed/providence)
 
+# (DEPRECATED/UNMAINTAINED)
+
 > Reference a sub-structure of any data structure.
 
 ## Usage
@@ -8,7 +10,7 @@
 $ npm install --save providence
 ```
 
-## Extensions 
+## Extensions
 
 `Providence` is intended to be extended to fit to your needs.
 
@@ -41,7 +43,7 @@ const cursor2 = Providence({
 
 ##### `options`
 
-**options.root.data** 
+**options.root.data**
 
 The "boxed" root data structure. The user must provide this.
 
@@ -49,7 +51,7 @@ The "boxed" root data structure. The user must provide this.
 
 An array of the path/keypath.
 
-**options.root.unbox** 
+**options.root.unbox**
 
 Function that will given value at `options.root.data`, and "unbox" into the value used in `deref()`/`valueOf()`, `update()`, and `delete()`/`remove()`.
 
@@ -57,7 +59,7 @@ By default this is an identity function (e.g. `function(x) {return x;}`).
 
 *NOTE:* It's expected that this is the inverse of `options.root.box`.
 
-**options.root.box** 
+**options.root.box**
 
 Function that will "box" a value back into a new value that will be written into `options.root.data`.
 
@@ -67,7 +69,7 @@ By default this is an identity function (e.g. `function(x) {return x;}`).
 
 *NOTE:* It's expected that this is the inverse of `options.root.unbox`.
 
-**options.getIn** 
+**options.getIn**
 
 A higher order function, which given the unboxed root data, shall return a function, `getIn`, with the signature: `getIn(path[, notSetValue])`.
 
@@ -80,7 +82,7 @@ function _defaultGetIn(rootData) {
 }
 ```
 
-**options.setIn** 
+**options.setIn**
 
 A higher order function, which given the unboxed root data, shall return a function, `setIn`, with the signature: `setIn(path, newvalue)`.
 
@@ -93,7 +95,7 @@ function _defaultSetIn(rootData) {
 }
 ```
 
-**options.deleteIn** 
+**options.deleteIn**
 
 A higher order function, which given the unboxed root data, shall return a function, `deleteIn`, with the signature: `deleteIn(path)`.
 
